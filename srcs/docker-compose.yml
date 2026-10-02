@@ -1,0 +1,130 @@
+
+services:
+  mariadb:
+    container_name: mariadb
+    networks:
+      - incepnet
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+    - mariadb:/var/lib/mysql
+    restart: always
+
+  nginx:
+    container_name: nginx
+    networks:
+      - incepnet
+    depends_on:
+      - wordpress
+      - adminer
+    build:
+      context: ./requirements/nginx
+      dockerfile : Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+      - adminer:/var/www/adminer
+    ports:
+      - "443:443"
+    restart: always
+
+  wordpress:
+    container_name: wordpress
+    networks:
+      - incepnet
+    depends_on:
+      - mariadb
+      - redis
+    build:
+      context: ./requirements/wordpress
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+
+#############          BONUS
+  redis:
+    container_name: redis
+    networks:
+      - incepnet
+    build:
+      context: ./requirements/bonus/redis
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    restart: always
+
+  ftp:
+    container_name: ftp
+    networks:
+      - incepnet
+    build:
+      context: ./requirements/bonus/ftp
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    volumes:
+      - wordpress:/var/www/html
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    restart: always
+
+  showcase:
+    container_name: showcase
+    networks:
+      - incepnet
+    build:
+      context: ./requirements/bonus/showcase
+      dockerfile: Dockerfile
+    ports:
+      - "40000:40000"
+    restart: always
+
+  adminer:
+    container_name: adminer
+    networks:
+      - incepnet
+    depends_on:
+      - mariadb
+    build:
+      context: ./requirements/bonus/adminer
+      dockerfile: Dockerfile
+    volumes:
+      - adminer:/var/www/html/adminer
+    restart: always
+
+volumes:
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/cefuente/data/wordpress
+      # device: /${HOME}/data/wordpress
+  adminer:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/cefuente/data/adminer
+      # device: /${HOME}/data/adminer
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/cefuente/data/mariadb
+      # device: /${HOME}/data/mariadb
+
+networks:
+  incepnet:
+    driver: bridge
