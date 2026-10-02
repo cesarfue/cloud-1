@@ -1,6 +1,6 @@
 #!/bin/sh
 
-service mysql start
+service mariadb start
 
 mysql -uroot -e "GRANT ALL ON *.* TO 'root'@'%' IDENTIFIED BY '$SQL_ROOT_PASSWORD'; \
   FLUSH PRIVILEGES;"
@@ -10,6 +10,6 @@ sleep 1
 mysql -uroot -e "GRANT ALL PRIVILEGES ON $SQL_DATABASE.* TO '$SQL_USER'@'%' IDENTIFIED BY '$SQL_PASSWORD'; \
   FLUSH PRIVILEGES;"
 
-service mysql stop
+service mariadb stop
 
 exec "$@"
