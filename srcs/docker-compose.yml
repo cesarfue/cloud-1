@@ -39,22 +39,8 @@ services:
       - incepnet
     depends_on:
       - mariadb
-      - redis
     build:
       context: ./requirements/wordpress
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - wordpress:/var/www/html
-    restart: always
-
-  redis:
-    container_name: redis
-    networks:
-      - incepnet
-    build:
-      context: ./requirements/bonus/redis
       dockerfile: Dockerfile
     env_file:
       - .env
