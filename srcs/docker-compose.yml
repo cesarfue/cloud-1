@@ -19,7 +19,7 @@ services:
       - incepnet
     depends_on:
       - wordpress
-      - adminer
+      - phpmyadmin
     build:
       context: ./requirements/nginx
       dockerfile : Dockerfile
@@ -27,7 +27,7 @@ services:
       - .env
     volumes:
       - wordpress:/var/www/html
-      - adminer:/var/www/adminer
+      - phpmyadmin:/var/www/phpmyadmin
     ports:
       - "443:443"
     restart: always
@@ -48,7 +48,6 @@ services:
       - wordpress:/var/www/html
     restart: always
 
-#############          BONUS
   redis:
     container_name: redis
     networks:
@@ -62,17 +61,17 @@ services:
       - wordpress:/var/www/html
     restart: always
 
-  adminer:
-    container_name: adminer
+  phpmyadmin:
+    container_name: phpmyadmin
     networks:
       - incepnet
     depends_on:
       - mariadb
     build:
-      context: ./requirements/bonus/adminer
+      context: ./requirements/phpmyadmin
       dockerfile: Dockerfile
     volumes:
-      - adminer:/var/www/html/adminer
+      - phpmyadmin:/var/www/phpmyadmin
     restart: always
 
 volumes:
@@ -83,13 +82,12 @@ volumes:
       o: bind
       device: /home/cefuente/data/wordpress
       # device: /${HOME}/data/wordpress
-  adminer:
+  phpmyadmin:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/cefuente/data/adminer
-      # device: /${HOME}/data/adminer
+      device: /home/cefuente/data/phpmyadmin
   mariadb:
     driver: local
     driver_opts:
