@@ -62,33 +62,6 @@ services:
       - wordpress:/var/www/html
     restart: always
 
-  ftp:
-    container_name: ftp
-    networks:
-      - incepnet
-    build:
-      context: ./requirements/bonus/ftp
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - wordpress:/var/www/html
-    ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
-    restart: always
-
-  showcase:
-    container_name: showcase
-    networks:
-      - incepnet
-    build:
-      context: ./requirements/bonus/showcase
-      dockerfile: Dockerfile
-    ports:
-      - "40000:40000"
-    restart: always
-
   adminer:
     container_name: adminer
     networks:
