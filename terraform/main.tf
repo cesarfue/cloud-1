@@ -91,6 +91,10 @@ resource "aws_instance" "web" {
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.web.id]
 
+  credit_specification {
+    cpu_credits = "standard"
+  }
+
   root_block_device {
     volume_type = "gp3"
     volume_size = var.root_volume_size
