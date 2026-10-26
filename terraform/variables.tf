@@ -42,3 +42,14 @@ variable "ssh_allowed_cidr" {
     error_message = "ssh_allowed_cidr must be a valid CIDR block, such as 203.0.113.7/32."
   }
 }
+
+variable "instance_state" {
+  description = "Power state of the instances: running, or stopped to stop paying for compute."
+  type        = string
+  default     = "running"
+
+  validation {
+    condition     = contains(["running", "stopped"], var.instance_state)
+    error_message = "instance_state must be running or stopped."
+  }
+}

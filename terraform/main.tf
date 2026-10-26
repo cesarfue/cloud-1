@@ -106,3 +106,10 @@ resource "aws_instance" "web" {
     Name = "cloud-1-${count.index}"
   }
 }
+
+resource "aws_ec2_instance_state" "web" {
+  count = var.instance_count
+
+  instance_id = aws_instance.web[count.index].id
+  state       = var.instance_state
+}
