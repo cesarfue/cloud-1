@@ -1,0 +1,83 @@
+---
+- name: Look for the data directories
+  ansible.builtin.stat:
+    path: "{{ app_data_path }}/{{ item }}"
+  loop:
+    - wordpress
+    - phpmyadmin
+    - mariadb
+  register: app_data_dirs
+
+- name: Create the missing data directories
+  ansible.builtin.file:
+    path: "{{ app_data_path }}/{{ item.item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ app_data_dirs.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: not item.stat.exists
+
+- name: Create the application directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}/srcs"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy the compose file
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../srcs/docker-compose.yml"
+    dest: "{{ app_dir }}/srcs/docker-compose.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  register: app_compose_file
+
+- name: Copy the image sources
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../srcs/requirements"
+    dest: "{{ app_dir }}/srcs/"
+    owner: root
+    group: root
+    mode: preserve
+    directory_mode: "0755"
+  register: app_image_sources
+
+- name: Write the environment file
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_dir }}/srcs/.env"
+    owner: root
+    group: root
+    mode: "0600"
+  diff: false
+
+- name: Build and start the stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ app_dir }}/srcs"
+    build: "{{ 'always' if (app_compose_file.changed or app_image_sources.changed) else 'policy' }}"
+    state: present
+
+- name: Wait for the WordPress installation
+  ansible.builtin.command: docker exec wordpress wp core is-installed --allow-root --path=/var/www/html
+  register: app_wp_installed
+  until: app_wp_installed.rc == 0
+  retries: 60
+  delay: 5
+  changed_when: false
+
+- name: Read the WordPress home URL
+  ansible.builtin.command: docker exec wordpress wp option get home --allow-root --path=/var/www/html
+  register: app_wp_home
+  changed_when: false
+
+- name: Point WordPress at the public URL
+  ansible.builtin.command: >-
+    docker exec wordpress wp search-replace {{ app_wp_home.stdout | quote }} {{ app_public_url | quote }}
+    --all-tables --allow-root --path=/var/www/html
+  when: app_wp_home.stdout != app_public_url
+  changed_when: true

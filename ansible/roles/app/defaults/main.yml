@@ -1,0 +1,5 @@
+---
+app_dir: /opt/cloud-1
+app_data_path: /var/lib/cloud-1
+app_compose_project_name: inception
+app_public_url: "https://{{ ansible_host | default(inventory_hostname) }}"

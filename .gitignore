@@ -4,3 +4,5 @@ secrets/
 *.tfstate
 *.tfstate.*
 *.tfvars
+ansible/inventory/aws.ini
+ansible/.known_hosts

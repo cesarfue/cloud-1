@@ -1,0 +1,17 @@
+---
+- name: Deploy the WordPress stack
+  hosts: all
+  become: true
+  gather_facts: false
+  pre_tasks:
+    - name: Wait for SSH
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+
+    - name: Gather facts
+      ansible.builtin.setup:
+  roles:
+    - swap
+    - docker
+    - firewall
+    - app

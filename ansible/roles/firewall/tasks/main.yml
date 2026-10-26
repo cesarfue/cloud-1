@@ -1,0 +1,24 @@
+---
+- name: Install ufw
+  ansible.builtin.apt:
+    name: ufw
+    lock_timeout: 600
+
+- name: Allow SSH, HTTP and HTTPS
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop:
+    - "22"
+    - "80"
+    - "443"
+
+- name: Deny other incoming traffic
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+
+- name: Enable ufw
+  community.general.ufw:
+    state: enabled

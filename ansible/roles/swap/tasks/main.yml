@@ -1,0 +1,24 @@
+---
+- name: Allocate the swap file
+  ansible.builtin.command: fallocate -l {{ swap_size }} {{ swap_file }}
+  args:
+    creates: "{{ swap_file }}"
+  notify:
+    - Format the swap file
+    - Enable the swap file
+
+- name: Restrict swap file permissions
+  ansible.builtin.file:
+    path: "{{ swap_file }}"
+    owner: root
+    group: root
+    mode: "0600"
+
+- name: Enable the swap file at boot
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "{{ swap_file }} none swap sw 0 0"
+    regexp: "^{{ swap_file }} "
+
+- name: Activate the swap before the image builds
+  ansible.builtin.meta: flush_handlers
